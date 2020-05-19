@@ -63,37 +63,11 @@ class ThirdActivity : AppCompatActivity() {
 
     fun getGsonArrayRequest(){
 
-
         var urlToArray = "https://pastebin.com/raw/Em972E5s"
         var list = ArrayList<String>()
         var result:String = ""
 
         var rq : RequestQueue = Volley.newRequestQueue(this)
-//        var jar = JsonArrayRequest(Request.Method.GET, urlToArray, null, Response.Listener<JSONArray> { response ->
-//
-//            if(result.isNullOrEmpty()){
-//                textViewShowName.text = "Null response"
-//                Log.d("showResult", "$result")
-//
-//            }
-//            else{
-//                for(x in 0..response.length()-1){
-//                    result+= (response.getJSONObject(x).getString("name") + "-"
-//                            + response.getJSONObject(x).getString("description")+ "\n"
-//                            )
-//                    textViewShowName.text = result
-//                    Log.d("showResult", "$result")
-//                }
-//            }
-//
-//
-//
-//
-//        }, Response.ErrorListener { error ->
-//
-//            textViewShowSalary.text = error.message
-//            Log.e("errorCode" , "${error.message}")
-//        })
 
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
@@ -133,50 +107,7 @@ class ThirdActivity : AppCompatActivity() {
 
     }
 
-    private fun fetchfromServer(url : String) {
 
-        val requestQueue = Volley.newRequestQueue(this)
-        val request = JsonArrayRequest(
-            Request.Method.GET, url,null,
-            Response.Listener{
-                    response ->
-                if (response == null) {
-                    Toast.makeText(
-                        applicationContext,
-                        "Couldn't fetch the menu! Pleas try again.",
-                        Toast.LENGTH_LONG
-                    ).show()
-
-                }
-               // for (x in 0..response.length()-1){
-                    recipes = Gson().fromJson(
-                        response.toString(),
-                      object:  TypeToken<List<Repo?>?>() {}.getType())
-               // }
-
-                // adding data to cart list
-              //  arrayList!!.clear()
-//                recipes?.let { arrayList!!.addAll(it) }
-//                arrayList.add(recipes)
-
-
-                saveTask(recipes, Application())
-
-            }, Response.ErrorListener {
-                    error ->
-                // error in getting json
-                Log.e("TAG", "Error: " + error.message)
-                Toast.makeText(
-                    applicationContext,
-                    "Error: " + error.message,
-                    Toast.LENGTH_SHORT
-                ).show()
-
-            })
-
-        request.setShouldCache(false)
-        requestQueue.add(request)
-    }
 
   private fun saveTask(recipes : List<Repo>? , context : Application) {
             //creating a task
