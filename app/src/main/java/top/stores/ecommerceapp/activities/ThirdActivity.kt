@@ -11,9 +11,10 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
+import kotlinx.android.synthetic.*
 import kotlinx.android.synthetic.main.activity_second.*
 import kotlinx.android.synthetic.main.activity_third.*
 import org.json.JSONArray
@@ -43,9 +44,10 @@ class ThirdActivity : AppCompatActivity() {
            R.layout.activity_third
        )
         viewModel = ViewModelProviders.of(this).get(EmployeeViewModel::class.java)
-       fetchJsonEmployeeObject()
-       showEmployeesFromViewModel()
-       // fetchJsonEmployeeObject()
+       //fetchJsonEmployeeObject()
+       //showEmployeesFromViewModel()
+        fetchJsonEmployeeObject()
+       // getGsonArrayRequest()
     }
 
 
@@ -60,7 +62,7 @@ class ThirdActivity : AppCompatActivity() {
        fun getGsonObjectRequest(){
            buttonSearchEmployees.setOnClickListener {
 
-               var url  : String = "https://api.androidhive.info/json/shimmer/menu.php" + editTestSearch.text.toString()
+               var url  : String = "https://api.androidhive.info/json/shimmer/menu.php" + editTextSearch.text.toString()
                var rq : RequestQueue = Volley.newRequestQueue(this)
                var jor = JsonObjectRequest(Request.Method.GET, url, null, Response.Listener { response ->
 
@@ -115,9 +117,7 @@ class ThirdActivity : AppCompatActivity() {
                 }
             },
             Response.ErrorListener { error->
-
-                textViewShowSalary.text = error.message
-//            Log.e("errorCode" , "${error.message}")
+                  error.printStackTrace()
             }
         )
         rq.add(jsonArrayRequest)
@@ -154,7 +154,7 @@ class ThirdActivity : AppCompatActivity() {
 
     private fun fetchJsonEmployeeObject(){
 
-        var urlToArray = "https://pastebin.com/raw/Em972E5s"
+        var urlToObject = "https://pastebin.com/raw/Em972E5s"
         var list = ArrayList<String>()
         var result:String = ""
 
@@ -162,10 +162,42 @@ class ThirdActivity : AppCompatActivity() {
 
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
-            urlToArray,
+            urlToObject,
             null,
             Response.Listener { response ->
-                fromJsonEmployeeEntity(response)
+
+
+                var name = binding.editTextSearch.text.toString()
+
+                binding.buttonSearch.setOnClickListener {
+                    for (i in 0 until response.length()) {
+                        // Get current json object
+                        val employee = response.getJSONObject(i)
+
+
+                        // Get the current student (json object) data
+                        val firstName = employee.getString("firstname")
+                        val lastName = employee.getString("lastname")
+                        val age = employee.getString("age")
+
+                        if (name == firstName){
+                            Log.d("firstName", "$name")
+                            binding.textViewShowName.append("$firstName $lastName\nAge : $age")
+                            binding.textViewShowName.append("\n\n")
+                        }
+                        else{
+                            binding.textViewShowName.append("User is not found!!")
+                            Log.d("firstName", "$name")
+                            break
+                            clearFindViewByIdCache()
+                        }
+                        // Display the formatted json data in text view
+                        Log.d("firstName", "$name")
+
+                    }
+                }
+
+                //fromJsonEmployeeEntity(response)
             },
             Response.ErrorListener { error->
 
@@ -177,7 +209,7 @@ class ThirdActivity : AppCompatActivity() {
 
     }
 
-    private fun fromJsonEmployee(response: JSONArray){
+    private fun fromJsonEmployee(response: JsonObject){
         val gson = Gson()
         val json : String = response.toString()
         val employee: Array<Employee> = gson.fromJson(json, Array<Employee>::class.java)
