@@ -1,11 +1,9 @@
-package top.stores.ecommerceapp
+package top.stores.ecommerceapp.activities
 
-import android.app.Application
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProviders
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.Response
@@ -13,30 +11,43 @@ import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_second.*
 import kotlinx.android.synthetic.main.activity_third.*
+import org.json.JSONArray
 import org.json.JSONException
-import top.stores.ecommerceapp.RoomDB.DatabaseClient
-import top.stores.ecommerceapp.RoomDB.Recipe
+import top.stores.ecommerceapp.R
+import top.stores.ecommerceapp.RoomDB.EmployeeEntity
 import top.stores.ecommerceapp.databinding.ActivityThirdBinding
-import top.stores.ecommerceapp.repository.Repo
+import top.stores.ecommerceapp.model.Employee
+import top.stores.ecommerceapp.repository.EmployeeRepository
+import top.stores.ecommerceapp.viewModels.EmployeeViewModel
 
 
 class ThirdActivity : AppCompatActivity() {
-    var recipes: List<Repo>? = null
+
+    private lateinit var viewModel: EmployeeViewModel
+
+    var recipes: List<EmployeeRepository>? = null
     var urlToArray = "https://api.androidhive.info/json/shimmer/menu.php"
-    private var arrayList: ArrayList<Repo>? = null
+    private var arrayList: ArrayList<EmployeeRepository>? = null
     private lateinit var  binding : ActivityThirdBinding
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_third)
-       binding = DataBindingUtil.setContentView(this, R.layout.activity_third)
-        //getGsonObjectRequest()
-        //getGsonArrayRequest()
-        getGsonArrayRequest()
+       binding = DataBindingUtil.setContentView(this,
+           R.layout.activity_third
+       )
+        viewModel = ViewModelProviders.of(this).get(EmployeeViewModel::class.java)
+        fetchJsonEmployeeObject()
+        showEmployeesFromViewModel()
+    }
+
+
+    fun showEmployeesFromViewModel(){
+        binding.textViewShowName.append(viewModel.getAllEMployees().toString())
+
     }
 
 
@@ -109,23 +120,72 @@ class ThirdActivity : AppCompatActivity() {
 
 
 
-  private fun saveTask(recipes : List<Repo>? , context : Application) {
-            //creating a task
-            for (i in recipes!!.indices) {
-                val recipe = Recipe()
-                recipe.name = recipes[i]!!.toString()
-                recipe.description = recipes!![i].toString()
-               // recipe.price = recipes!![i].toString().toDouble()
-                recipe.thumbnail = recipes!![i].toString()
-                recipe.chef = recipes!![i].toString()
-                recipe.timestamp = recipes!![i].toString()
-                //database.appDatabase.recipeDao()?.insert(recipe)
-                DatabaseClient(context).appDatabase.recipeDao()?.insert(recipe = recipes)
+//  private fun saveTask(recipes : List<EmployeeRepository>?, context : Application) {
+//            //creating a task
+//            for (i in recipes!!.indices) {
+//                val recipe = Recipe()
+//                recipe.name = recipes[i]!!.toString()
+//                recipe.description = recipes!![i].toString()
+//               // recipe.price = recipes!![i].toString().toDouble()
+//                recipe.thumbnail = recipes!![i].toString()
+//                recipe.chef = recipes!![i].toString()
+//                recipe.timestamp = recipes!![i].toString()
+//                //database.appDatabase.recipeDao()?.insert(recipe)
+//                DatabaseClient(context).appDatabase.recipeDao()?.insert(recipe = recipes)
+//
+//            }
+//
+//
+//           }
 
+    private fun makeJsonEmployeeObject(){
+
+        val gson = Gson()
+        val employee : Employee = Employee("Suresh", 34, "Gen")
+        val json = gson.toJson(employee)
+
+    }
+
+    private fun fetchJsonEmployeeObject(){
+
+        var urlToArray = "https://pastebin.com/raw/Em972E5s"
+        var list = ArrayList<String>()
+        var result:String = ""
+
+        var rq : RequestQueue = Volley.newRequestQueue(this)
+
+        val jsonArrayRequest = JsonArrayRequest(
+            Request.Method.GET,
+            urlToArray,
+            null,
+            Response.Listener { response ->
+                fromJsonEmployeeEntity(response)
+            },
+            Response.ErrorListener { error->
+
+                textViewShowSalary.text = error.message
+//            Log.e("errorCode" , "${error.message}")
             }
+        )
+        rq.add(jsonArrayRequest)
+
+    }
+
+    private fun fromJsonEmployee(response : JSONArray){
+        val gson = Gson()
+        val json : String = response.toString()
+        val employee = gson.fromJson(json, Employee::class.java)
+    }
 
 
-           }
+    private fun fromJsonEmployeeEntity(response : JSONArray){
+        val gson = Gson()
+        val json : String = response.toString()
+        val employee = gson.fromJson(json, EmployeeEntity::class.java)
+    }
+
+
+
 
 
 
