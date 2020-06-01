@@ -1,6 +1,7 @@
 package top.stores.ecommerceapp.activities
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProviders
@@ -10,7 +11,9 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.activity_second.*
 import kotlinx.android.synthetic.main.activity_third.*
 import org.json.JSONArray
@@ -40,13 +43,16 @@ class ThirdActivity : AppCompatActivity() {
            R.layout.activity_third
        )
         viewModel = ViewModelProviders.of(this).get(EmployeeViewModel::class.java)
-        fetchJsonEmployeeObject()
-        showEmployeesFromViewModel()
+       fetchJsonEmployeeObject()
+       showEmployeesFromViewModel()
+       // fetchJsonEmployeeObject()
     }
 
 
     fun showEmployeesFromViewModel(){
-        binding.textViewShowName.append(viewModel.getAllEMployees().toString())
+        binding.textViewShowName.apply {
+            viewModel.getAllEMployees().toString()
+        }
 
     }
 
@@ -171,17 +177,27 @@ class ThirdActivity : AppCompatActivity() {
 
     }
 
-    private fun fromJsonEmployee(response : JSONArray){
+    private fun fromJsonEmployee(response: JSONArray){
         val gson = Gson()
         val json : String = response.toString()
-        val employee = gson.fromJson(json, Employee::class.java)
+        val employee: Array<Employee> = gson.fromJson(json, Array<Employee>::class.java)
+        Log.d("employee", "$employee")
+
     }
 
 
-    private fun fromJsonEmployeeEntity(response : JSONArray){
-        val gson = Gson()
+    private fun fromJsonEmployeeEntity(response: JSONArray){
         val json : String = response.toString()
-        val employee = gson.fromJson(json, EmployeeEntity::class.java)
+
+        val gson: Gson = GsonBuilder()
+                          .create()
+
+        val employee : Array<EmployeeEntity> = gson.fromJson(json, Array<EmployeeEntity>::class.java)
+        //Log.d("employee", "$employee")
+       // Log.d("gson", "$gson")
+        Log.d("json", "$json")
+
+
     }
 
 
